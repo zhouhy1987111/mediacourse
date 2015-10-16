@@ -31,10 +31,8 @@
 package work1;
 
 import java.awt.*;
-import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.AffineTransform;
 import java.awt.image.*;
 import java.io.IOException;
 
@@ -42,8 +40,6 @@ import javax.swing.*;
 
 public class ApplicationFrame extends JFrame implements ActionListener {
     private BufferedImage sourceImage;
-    JMenuItem affineTransformLabel;
-    String affineTransformString;
 
     public ApplicationFrame() {
         super("数字图像例子");
@@ -164,35 +160,6 @@ public class ApplicationFrame extends JFrame implements ActionListener {
         tabbedPane.add("原始图像", new JLabel(new ImageIcon(sourceImage)));
     }
 
-    private void buildAffineTransformOpTab(JTabbedPane tabbedPane) {
-        affineTransformLabel = new JMenuItem();
-//        affineTransformLabel.addActionListener(this);
-        BufferedImage dstImage = null;
-        AffineTransform transform = AffineTransform.getScaleInstance(0.5, 0.5);
-        boolean hasErr = false;
-        if(affineTransformString!=null && affineTransformString.length()>0) {
-            String parts[] = affineTransformString.split(",");
-            if(parts.length==2) {
-                double p1 = Double.parseDouble(parts[0]);
-                double p2 = Double.parseDouble(parts[1]);
-                transform = AffineTransform.getScaleInstance(p1, p2);
-            } else
-                hasErr = true;
-        }
-        else
-            hasErr = true;
-//        if(hasErr)
-//            JOptionPane.showMessageDialog(null, "输入数字不正确，请重新输入!");
-        AffineTransformOp op = new AffineTransformOp(transform,
-                AffineTransformOp.TYPE_BILINEAR);
-        dstImage = op.filter(sourceImage, null);
-        affineTransformLabel.setIcon(new ImageIcon(dstImage));
-        affineTransformLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//        String st = JOptionPane.showInputDialog(null, "采样级数(256/128/64/32/16):","128");
-        tabbedPane.add("仿射变换", affineTransformLabel);
-        repaint();
-    }
-
     private void buildColorConvertOpTab(JTabbedPane tabbedPane) {
         Image dstImage = null;
         int iw = sourceImage.getWidth(this);
@@ -211,66 +178,6 @@ public class ApplicationFrame extends JFrame implements ActionListener {
         ImageProducer ip = new MemoryImageSource(iw, ih, pixels, 0, iw);
         dstImage = createImage(ip);
         tabbedPane.add("灰度化", new JLabel(new ImageIcon(dstImage)));
-    }
-
-    private void buildColorConvertOpTab2(JTabbedPane tabbedPane) {
-        Image dstImage = null;
-        ColorSpace colorSpace = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-        ColorConvertOp op = new ColorConvertOp(colorSpace, null);
-        dstImage = op.filter(sourceImage, null);
-        tabbedPane.add("颜色变换2", new JLabel(new ImageIcon(dstImage)));
-    }
-
-    private void buildConvolveOpTab(JTabbedPane tabbedPane) {
-        BufferedImage dstImage = null;
-        float[] sharpen = new float[] {
-                0.0f, -1.0f,  0.0f,
-                -1.0f,  5.0f, -1.0f,
-                0.0f, -1.0f,  0.0f
-        };
-        Kernel kernel = new Kernel(3, 3, sharpen);
-        ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
-        dstImage = op.filter(sourceImage, null);
-
-        tabbedPane.add("Convolve", new JLabel(new ImageIcon(dstImage)));
-    }
-
-    private void buildLookupOpTab(JTabbedPane tabbedPane) {
-        BufferedImage dstImage = null;
-        short[] data = new short[256];
-        for (int i = 0; i < 256; i++) {
-            data[i] = (short) (255 - i);
-        }
-//        short[] red = new short[256];
-//        short[] green = new short[256];
-//        short[] blue = new short[256];
-//        for (short i = 0; i < 256; i++) {
-//        red[i] = 0;
-//        green[i] = 0;
-//        blue[i] = i;
-//        }
-//        short[][] data = new short[][] {
-//        red, green, blue
-//        };
-        LookupTable lookupTable = new ShortLookupTable(0, data);
-        LookupOp op = new LookupOp(lookupTable, null);
-        dstImage = op.filter(sourceImage, null);
-
-        tabbedPane.add("Lookup", new JLabel(new ImageIcon(dstImage)));
-    }
-
-    private void buildRescaleOpTab(JTabbedPane tabbedPane) {
-        BufferedImage dstImage = null;
-        float[] factors = new float[] {
-                1.4f, 1.4f, 1.4f
-        };
-        float[] offsets = new float[] {
-                0.0f, 0.0f, 30.0f
-        };
-        RescaleOp op = new RescaleOp(factors, offsets, null);
-        dstImage = op.filter(sourceImage, null);
-
-        tabbedPane.add("Rescale", new JLabel(new ImageIcon(dstImage)));
     }
 
     public int[] grabber(Image im, int iw, int ih)
