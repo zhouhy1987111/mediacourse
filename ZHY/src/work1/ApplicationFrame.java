@@ -30,6 +30,9 @@
  */
 package work1;
 
+import utils.GraphicsUtils;
+import utils.HistogramAnalysisUtils;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -38,11 +41,19 @@ import java.io.IOException;
 
 import javax.swing.*;
 
+/**
+ * Created with IntelliJ IDEA.
+ * User: ZHY
+ * Date: 15-10-16
+ * Time: 下午11:05
+ */
 public class ApplicationFrame extends JFrame implements ActionListener {
     private BufferedImage sourceImage;
+    private BufferedImage colorConvertImage;
+    private BufferedImage filterImage;
 
     public ApplicationFrame() {
-        super("数字图像例子");
+        super("数字图像课程1--灰度和对比度 作者:周弘懿_Z14030746");
 
         loadSourceImage();
         buildTabbedPane();
@@ -62,12 +73,19 @@ public class ApplicationFrame extends JFrame implements ActionListener {
     }
 
     private void buildTabbedPane() {
+//        setLayout(new BorderLayout());
+//        JPanel p1 = new JPanel();
+//        JButton b1 = new JButton("查询");
+//        p1.add(b1);
+//        add(p1, "West");
         JTabbedPane tabbedPane = new JTabbedPane();
-
         buildNoOpTab(tabbedPane);
+        tabbedPane.add("原始图像直方图", new JLabel(new ImageIcon(new HistogramAnalysisUtils(sourceImage).getHistogram("原始图像直方图"))));
         buildColorConvertOpTab(tabbedPane);
+        tabbedPane.add("灰度化图像直方图", new JLabel(new ImageIcon(new HistogramAnalysisUtils(colorConvertImage).getHistogram("灰度化图像直方图"))));
         buildFilterOpTab(tabbedPane);
-        add(tabbedPane);
+        tabbedPane.add("对比度/亮度图像直方图", new JLabel(new ImageIcon(new HistogramAnalysisUtils(filterImage).getHistogram("对比度/亮度图像直方图"))));
+        add(tabbedPane, "Center");
     }
 
     private int clamp(int value) {
@@ -81,7 +99,7 @@ public class ApplicationFrame extends JFrame implements ActionListener {
         //获得源图片长度和宽度
         int width=sourceImage.getWidth();
         int height=sourceImage.getHeight();
-        BufferedImage dstImage=new BufferedImage(width,height,sourceImage.getType());
+        filterImage=new BufferedImage(width,height,sourceImage.getType());
         int[] inPixels=new int[width*height];
         int[] outPixels=new int[width*height];
         sourceImage.getRGB(0,0,width,height,inPixels,0,width);
@@ -142,15 +160,13 @@ public class ApplicationFrame extends JFrame implements ActionListener {
 
             }
         }
-        dstImage.setRGB(0, 0, width, height, outPixels, 0, width);
-        tabbedPane.add("对比度亮度", new JLabel(new ImageIcon(dstImage)));
+        filterImage.setRGB(0, 0, width, height, outPixels, 0, width);
+        tabbedPane.add("对比度/亮度图像", new JLabel(new ImageIcon(filterImage)));
     }
 
     private void loadSourceImage() {
         try {
-            // Load a compatible image for performance
-            sourceImage = GraphicsUtilities.loadCompatibleImage(
-                    getClass().getResource("/imageop/Provence.jpg"));
+            sourceImage = GraphicsUtils.loadCompatibleImage(getClass().getResource("/imageop/beauty.jpg"));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -161,7 +177,6 @@ public class ApplicationFrame extends JFrame implements ActionListener {
     }
 
     private void buildColorConvertOpTab(JTabbedPane tabbedPane) {
-        Image dstImage = null;
         int iw = sourceImage.getWidth(this);
         int ih = sourceImage.getHeight(this);
         int[] pixels = grabber(sourceImage, iw, ih);
@@ -175,9 +190,18 @@ public class ApplicationFrame extends JFrame implements ActionListener {
             gray = (int) ((r + g + b) / 3);
             pixels[i] = 255 << 24 | gray << 16 | gray << 8 | gray;
         }
-        ImageProducer ip = new MemoryImageSource(iw, ih, pixels, 0, iw);
-        dstImage = createImage(ip);
-        tabbedPane.add("灰度化", new JLabel(new ImageIcon(dstImage)));
+        colorConvertImage=new BufferedImage(iw,ih,sourceImage.getType());
+        colorConvertImage.setRGB(0, 0, iw, ih, pixels, 0, iw);
+
+//        JPanel p1 = new JPanel();
+//        p1.setLayout(new BorderLayout());
+//        JPanel northP = new JPanel();
+//        northP.setLayout(new FlowLayout());
+//        northP.add(new JScrollBar(JScrollBar.HORIZONTAL, 100, 10, 0, 200));
+//        northP.add(new JScrollBar(JScrollBar.HORIZONTAL, 100, 10, 0, 200));
+//        p1.add(northP, "North");
+//        p1.add(new JLabel(new ImageIcon(colorConvertImage)), "Center");
+        tabbedPane.add("灰度化图像", new JLabel(new ImageIcon(colorConvertImage)));
     }
 
     public int[] grabber(Image im, int iw, int ih)
