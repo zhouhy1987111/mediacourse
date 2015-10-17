@@ -28,18 +28,18 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package work1;
+package c1;
 
 import utils.GraphicsUtils;
 import utils.HistogramAnalysisUtils;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.io.IOException;
-
-import javax.swing.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -54,16 +54,10 @@ public class ApplicationFrame extends JFrame implements ActionListener {
     private JLabel yuanshiLabel;
     private JLabel grayLabel;
     private JLabel filterLabel;
-    private JButton zhifangtuButton1;
-    private JButton zhifangtuButton2;
-    private JButton zhifangtuButton3;
-    private JButton yuanshituButton1;
-    private JButton yuanshituButton2;
-    private JButton yuanshituButton3;
     private JButton huiduButton;
 
     public ApplicationFrame() {
-        super("数字图像课程1--灰度和对比度 作者:周弘懿_Z14030746");
+        super("数字图像课程1--灰度和对比度 作者:王玲");
         loadSourceImage();
         buildTabbedPane();
         pack();
@@ -80,11 +74,6 @@ public class ApplicationFrame extends JFrame implements ActionListener {
     }
 
     private void buildTabbedPane() {
-//        setLayout(new BorderLayout());
-//        JPanel p1 = new JPanel();
-//        JButton b1 = new JButton("查询");
-//        p1.add(b1);
-//        add(p1, "West");
         JTabbedPane tabbedPane = new JTabbedPane();
         buildNoOpTab(tabbedPane);
         buildColorConvertOpTab(tabbedPane);
@@ -170,26 +159,19 @@ public class ApplicationFrame extends JFrame implements ActionListener {
      * @param tabbedPane
      */
     private void buildFilterOpTab(JTabbedPane tabbedPane) {
-        float contrast = 1f;
-        float brightness = 1f;
+        float contrast = 3f;
+        float brightness = 3f;
         filterImage = buildFilterOpTabInner(sourceImage, contrast, brightness);
         filterLabel = new JLabel(new ImageIcon(filterImage));
-        filterLabel.setLayout(new FlowLayout());
-        zhifangtuButton3 = new JButton("直方图");
-        zhifangtuButton3.addActionListener(this);
-        yuanshituButton3 = new JButton("原始图");
-        yuanshituButton3.addActionListener(this);
         huiduButton = new JButton("对比度/亮度调整");
         huiduButton.addActionListener(this);
-        filterLabel.add(zhifangtuButton3);
-        filterLabel.add(yuanshituButton3);
         filterLabel.add(huiduButton);
         tabbedPane.add("对比度/亮度图像", filterLabel);
     }
 
     private void loadSourceImage() {
         try {
-            sourceImage = GraphicsUtils.loadCompatibleImage(getClass().getResource("/imageop/beauty.jpg"));
+            sourceImage = GraphicsUtils.loadCompatibleImage(getClass().getResource("/imageop/cat.jpg"));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -198,12 +180,6 @@ public class ApplicationFrame extends JFrame implements ActionListener {
     private void buildNoOpTab(JTabbedPane tabbedPane) {
         yuanshiLabel = new JLabel(new ImageIcon(sourceImage));
         yuanshiLabel.setLayout(new FlowLayout());
-        zhifangtuButton1 = new JButton("直方图");
-        zhifangtuButton1.addActionListener(this);
-        yuanshituButton1 = new JButton("原始图");
-        yuanshituButton1.addActionListener(this);
-        yuanshiLabel.add(zhifangtuButton1);
-        yuanshiLabel.add(yuanshituButton1);
         tabbedPane.add("原始图像", yuanshiLabel);
     }
 
@@ -235,45 +211,10 @@ public class ApplicationFrame extends JFrame implements ActionListener {
         grayImage =buildColorConvertOpTabInner(sourceImage);
         grayLabel = new JLabel(new ImageIcon(grayImage));
         grayLabel.setLayout(new FlowLayout());
-        zhifangtuButton2 = new JButton("直方图");
-        zhifangtuButton2.addActionListener(this);
-        yuanshituButton2 = new JButton("原始图");
-        yuanshituButton2.addActionListener(this);
-        grayLabel.add(zhifangtuButton2);
-        grayLabel.add(yuanshituButton2);
         tabbedPane.add("灰度化图像", grayLabel);
     }
 
     @Override
     public void actionPerformed(ActionEvent env) {
-        if (env.getSource() == huiduButton) {
-            try {
-                float duibiduValue = Float.parseFloat(JOptionPane.showInputDialog(null, "对比度", 1.5));
-                float liangduValue = Float.parseFloat(JOptionPane.showInputDialog(null, "亮度", 1.5));
-                filterImage = buildFilterOpTabInner(sourceImage, duibiduValue, liangduValue);
-                filterLabel.setIcon(new ImageIcon(filterImage));
-                repaint();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if(env.getSource() == zhifangtuButton1) {
-            yuanshiLabel.setIcon(new ImageIcon(new HistogramAnalysisUtils(sourceImage).getHistogram("原始图像直方图")));
-            repaint();
-        } else if(env.getSource() == zhifangtuButton2) {
-            grayLabel.setIcon(new ImageIcon(new HistogramAnalysisUtils(grayImage).getHistogram("灰度化图像直方图")));
-            repaint();
-        } else if(env.getSource() == zhifangtuButton3) {
-            filterLabel.setIcon(new ImageIcon(new HistogramAnalysisUtils(filterImage).getHistogram("对比度/亮度图像直方图")));
-            repaint();
-        } else if(env.getSource() == yuanshituButton1) {
-            yuanshiLabel.setIcon(new ImageIcon(sourceImage));
-            repaint();
-        } else if(env.getSource() == yuanshituButton2) {
-            grayLabel.setIcon(new ImageIcon(buildColorConvertOpTabInner(sourceImage)));
-            repaint();
-        } else if(env.getSource() == yuanshituButton3) {
-            filterLabel.setIcon(new ImageIcon(sourceImage));
-            repaint();
-        }
     }
 }
